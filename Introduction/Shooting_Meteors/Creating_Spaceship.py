@@ -5,11 +5,13 @@ class SpaceShip(pygame.sprite.Sprite):
 		super().__init__()
 		self.image = pygame.image.load(path)
 		self.rect = self.image.get_rect(center = (x_pos,y_pos))
-		self.shield_surface = pygame.image.load('shield.png')
+		self.shield_surface = pygame.image.load("shield.png")
+		self.health = 5
 
 	def update(self):
 		self.rect.center = pygame.mouse.get_pos()
 		self.screen_constrain()
+		self.display_health
 
 	def screen_constrain(self):
 		if self.rect.right >= 1280:
@@ -17,6 +19,10 @@ class SpaceShip(pygame.sprite.Sprite):
 
 		if self.rect.left <=0:
 			self.rect.left = 0
+
+	def display_health(self):
+		for index,shield in enumerate(range(self.health)):
+			screen.blit(self.shield_surface,(index * 40,10))
 
 class Meteor(pygame.sprite.Sprite):
 	def __init__(self,path,x_pos,y_pos,x_speed,y_speed):
