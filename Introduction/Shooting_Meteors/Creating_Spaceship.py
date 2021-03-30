@@ -3,7 +3,9 @@ import pygame, sys, random
 class SpaceShip(pygame.sprite.Sprite):
 	def __init__(self,path,x_pos,y_pos,):
 		super().__init__()
-		self.image = pygame.image.load(path)
+		self.uncharged = pygame.image.load(path)
+		self.charged = pygame.image.load('spaceship_charged.png')
+		self.image = self.uncharged
 		self.rect = self.image.get_rect(center = (x_pos,y_pos))
 		self.shield_surface = pygame.image.load("shield.png")
 		self.health = 5
@@ -26,6 +28,13 @@ class SpaceShip(pygame.sprite.Sprite):
 
 	def get_damage(self,damage_amount):
 		self.health -= damage_amount
+
+
+	def charge(self):
+		self.image = self.charged
+
+	def discharge(self):
+		self.image = self.uncharged
 
 class Meteor(pygame.sprite.Sprite):
 	def __init__(self,path,x_pos,y_pos,x_speed,y_speed):
@@ -56,6 +65,7 @@ class Laser(pygame.sprite.Sprite):
 			self.kill()
 
 def main_game():
+	global laser_active
 	laser_group.draw(screen)
 	spaceship_group.draw(screen)
 	meteor_group.draw(screen)
@@ -67,15 +77,30 @@ def main_game():
 	for laser in laser_group:
 		pygame.sprite.spritecollide(laser,meteor_group,True)
 
+	# Laser timer
+	if pygame.time.get_ticks() - laser_timer >= 1000:
+		laser_active = True
+		spaceship_group.sprite.charge
+
+
+	return 1
+
 def end_game():
 	text_surface = game_font.render("Game over", True, (255,255,255))
-	text_rect = text_surface.get_rect(center = (640,360))
+	text_rect = text_surface.get_rect(center = (640,300))
 	screen.blit(text_surface,text_rect)
+
+	score_surface = game_font.render(f'Score:{score}', True, (255,255,255))
+	score_rect = score_surface.get_rect(center = (640,360))
+	screen.blit(score_surface,score_rect)
 
 pygame.init() #initiating pygame
 screen = pygame.display.set_mode((1280,720)) #Creating the display surface
 clock = pygame.time.Clock() #creating clock objective
-game_font = pygame.font.Font(None,40)
+game_font = pygame.font.Font('LazenbyCompSmooth.ttf',40)
+score = 0
+laser_timer = 0
+laser_active = False
 
 spaceship = SpaceShip('spaceship.png',640,500)
 spaceship_group = pygame.sprite.GroupSingle()
@@ -102,14 +127,24 @@ while True:
 			meteor_group.add(meteor)
 
 
-		if event.type == pygame.MOUSEBUTTONDOWN:
+		if event.type == pygame.MOUSEBUTTONDOWN and laser_active:
 			new_laser = Laser ('Laser.png',event.pos,15)
 			laser_group.add(new_laser)
+			laser_active = False
+			laser_timer = pygame.time.get_ticks()
+			spaceship_group.sprite.discharge()
+
+		if event.type == pygame.MOUSEBUTTONDOWN and spaceship_group.sprite.health <= 0:
+			spaceship_group.sprite.health = 5
+			meteor_group.empty()
+			score = 0
+			
 
 
 	screen.fill((42,45,51)) 
 	if spaceship_group.sprite.health > 0:
-		main_game()
+		score += main_game()
+		print(score)
 	else:
 		end_game()
 
