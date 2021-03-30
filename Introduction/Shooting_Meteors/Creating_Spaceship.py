@@ -22,7 +22,10 @@ class SpaceShip(pygame.sprite.Sprite):
 
 	def display_health(self):
 		for index,shield in enumerate(range(self.health)):
-			screen.blit(self.shield_surface,(index * 40,10))
+			screen.blit(self.shield_surface,(10 + index * 40,10))
+
+	def get_damage(self,damage_amount):
+		self.health -= damage_amount
 
 class Meteor(pygame.sprite.Sprite):
 	def __init__(self,path,x_pos,y_pos,x_speed,y_speed):
@@ -90,6 +93,13 @@ while True:
 	laser_group.draw(screen)
 	spaceship_group.draw(screen)
 	meteor_group.draw(screen)
+
+	#Collisions
+	if pygame.sprite.spritecollide(spaceship_group.sprite,meteor_group,True):
+		spaceship_group.sprite.get_damage(1)
+
+	for laser in laser_group:
+		pygame.sprite.spritecollide(laser,meteor_group,True)   
 
 	laser_group.update()
 	spaceship_group.update()
