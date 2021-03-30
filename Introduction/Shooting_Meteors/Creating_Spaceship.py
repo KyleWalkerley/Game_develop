@@ -1,4 +1,4 @@
-import pygame, sys
+import pygame, sys, random
 
 class SpaceShip(pygame.sprite.Sprite):
 	def __init__(self,path,x_pos,y_pos,speed):
@@ -29,6 +29,9 @@ class Meteor(pygame.sprite.Sprite):
 		self.rect.centerx += self.x_speed
 		self.rect.centery += self.y_speed
 
+		if self.rect.centery >= 800:
+			self.kill()
+
 pygame.init() #initiating pygame
 screen = pygame.display.set_mode((1280,720)) #Creating the display surface
 clock = pygame.time.Clock() #creating clock objective
@@ -40,7 +43,7 @@ spaceship_group.add(spaceship)
 meteor_group = pygame.sprite.Group()
 
 METEOR_EVENT = pygame.USEREVENT
-pygame.time.set_timer(METEOR_EVENT,250)
+pygame.time.set_timer(METEOR_EVENT,100)
 
 while True:
 	for event in pygame.event.get():
@@ -48,6 +51,13 @@ while True:
 			pygame.quit()
 			sys.exit()
 		if event.type == METEOR_EVENT:
+			meteor_path = random.choice(("Meteor1.png","Meteor2.png","Meteor3.png"))
+			random_x_pos = random.randrange(0,1280)
+			random_y_pos = random.randrange(-500,-50)
+			random_x_speed = random.randrange(-1,1)
+			random_y_speed = random.randrange(4,10)
+			meteor = Meteor(meteor_path,random_x_pos,random_y_pos,random_x_speed,random_y_speed)
+			meteor_group.add(meteor)
 
 
 	screen.fill((42,45,51))
